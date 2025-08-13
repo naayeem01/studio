@@ -167,7 +167,7 @@ export function Pricing() {
 
                         <div className="p-6 pt-0">
                           <Separator className="my-4" />
-                          <div className="space-y-4 rounded-lg p-4 bg-primary/5 border border-primary/20 shadow-inner transition-all duration-300 animate-glow">
+                          <div className="space-y-4 rounded-lg p-4 bg-primary/5 border border-primary/20 shadow-inner transition-all duration-300">
                             <h4 className="text-sm font-semibold text-center text-primary">Hardware Add-ons</h4>
                             {addons.map(addon => (
                               <div key={addon.id} className="flex justify-between items-center p-2 rounded-md hover:bg-primary/10">
