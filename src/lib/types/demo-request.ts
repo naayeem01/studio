@@ -13,7 +13,7 @@ export const DemoRequestStatusSchema = z.enum(["Pending", "Contacted", "Complete
 export type DemoRequestStatus = z.infer<typeof DemoRequestStatusSchema>;
 
 export const DemoRequestSchema = DemoRequestInputSchema.extend({
-  id: z.string(),
+  id: z.string(), // Firestore document ID
   date: z.string(),
   status: DemoRequestStatusSchema,
 });

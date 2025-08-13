@@ -198,7 +198,7 @@ export default function OrdersPage() {
                                     {OrderStatusSchema.options.map((status) => (
                                         <DropdownMenuItem
                                             key={status}
-                                            onClick={() => handleStatusChange(order.orderId, status)}
+                                            onClick={() => handleStatusChange(order.id, status)}
                                             disabled={isPending || order.status === status}
                                         >
                                             {status}
@@ -225,7 +225,7 @@ export default function OrdersPage() {
                           </AlertDialogHeader>
                           <AlertDialogFooter>
                               <AlertDialogCancel>Cancel</AlertDialogCancel>
-                              <AlertDialogAction onClick={() => handleDeleteOrder(order.orderId)} className="bg-destructive hover:bg-destructive/90">
+                              <AlertDialogAction onClick={() => handleDeleteOrder(order.id)} className="bg-destructive hover:bg-destructive/90">
                                   Yes, delete order
                               </AlertDialogAction>
                           </AlertDialogFooter>

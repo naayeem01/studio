@@ -1,7 +1,7 @@
 
 'use server';
 /**
- * @fileOverview A simple in-memory order management system.
+ * @fileOverview A simple order management system using Firebase Firestore.
  *
  * - submitOrder - Creates a new order and stores it.
  * - getOrders - Retrieves all stored orders.
@@ -20,12 +20,9 @@ import {
     type OrderInput,
     type OrderStatus
 } from '@/lib/types/order';
+import { addDocument, getDocuments, updateDocument, deleteDocument } from '@/lib/firebase/firestore';
 
-
-// In-memory store for orders. NOTE: This will be cleared on server restart.
-let orders: Order[] = [];
-
-let orderCounter = 1005; // Start after mock data
+const ORDERS_COLLECTION = 'orders';
 
 async function sendSms(to: string, message: string) {
     const apiKey = process.env.SMS_API_KEY;
@@ -45,7 +42,7 @@ async function sendSms(to: string, message: string) {
             body: formData,
         });
 
-        const result = await response.json(); // sms.net.bd seems to return JSON
+        const result = await response.json();
         if (result.status === 'success') {
             console.log('SMS sent successfully to:', to);
         } else {
@@ -64,15 +61,24 @@ const submitOrderFlow = ai.defineFlow(
     outputSchema: OrderSchema,
   },
   async (input) => {
-    orderCounter++;
-    const newOrder: Order = {
-      ...input,
-      orderId: `OC-${orderCounter}`,
-      date: format(new Date(), 'yyyy-MM-dd'),
+    const newOrderData: Omit<Order, 'orderId' | 'date'> = {
+        ...input,
     };
-    orders.push(newOrder);
-    console.log('New order submitted:', newOrder);
-    return newOrder;
+    
+    // Generate a temporary ID to use for the document ID in Firestore
+    const tempId = `OC-${Date.now()}`;
+    const finalOrderData: Omit<Order, 'id'> = {
+        ...newOrderData,
+        orderId: tempId,
+        date: format(new Date(), 'yyyy-MM-dd HH:mm'),
+    }
+
+    // Use the tempId as the document ID in Firestore
+    await addDocument(ORDERS_COLLECTION, finalOrderData, tempId);
+    
+    console.log('New order submitted to Firestore:', finalOrderData);
+    
+    return { ...finalOrderData, id: tempId };
   }
 );
 
@@ -99,8 +105,7 @@ const getOrdersFlow = ai.defineFlow(
     outputSchema: z.array(OrderSchema),
   },
   async () => {
-    // Return orders in reverse chronological order
-    return [...orders].reverse();
+    return getDocuments<Order>(ORDERS_COLLECTION, 'date', 'desc');
   }
 );
 
@@ -114,14 +119,8 @@ const updateOrderStatusFlow = ai.defineFlow(
     outputSchema: z.boolean(),
   },
   async ({ orderId, status }) => {
-    const requestIndex = orders.findIndex(req => req.orderId === orderId);
-    if (requestIndex === -1) {
-      console.error(`Order with ID ${orderId} not found.`);
-      return false;
-    }
-    orders[requestIndex].status = status;
-    console.log(`Updated status for order ${orderId} to ${status}`);
-    return true;
+    console.log(`Updating status for order ${orderId} to ${status}`);
+    return updateDocument(ORDERS_COLLECTION, orderId, { status });
   }
 );
 
@@ -132,15 +131,8 @@ const deleteOrderFlow = ai.defineFlow(
     outputSchema: z.boolean(),
   },
   async (orderId) => {
-    const initialLength = orders.length;
-    orders = orders.filter(req => req.orderId !== orderId);
-    if (orders.length < initialLength) {
-        console.log(`Order with ID ${orderId} deleted.`);
-        return true;
-    } else {
-        console.error(`Order with ID ${orderId} not found for deletion.`);
-        return false;
-    }
+    console.log(`Deleting order with ID ${orderId}`);
+    return deleteDocument(ORDERS_COLLECTION, orderId);
   }
 );
 

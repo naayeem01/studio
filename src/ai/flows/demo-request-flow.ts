@@ -1,6 +1,7 @@
+
 'use server';
 /**
- * @fileOverview Manages demo requests.
+ * @fileOverview Manages demo requests using Firebase Firestore.
  *
  * - submitDemoRequest - Creates a new demo request.
  * - getDemoRequests - Retrieves all demo requests.
@@ -17,11 +18,9 @@ import {
     type DemoRequestInput,
     type DemoRequestStatus
 } from '@/lib/types/demo-request';
+import { addDocument, getDocuments, updateDocument } from '@/lib/firebase/firestore';
 
-
-// In-memory store for demo requests. NOTE: This will be cleared on server restart.
-const demoRequests: DemoRequest[] = [];
-let requestCounter = 1;
+const DEMO_REQUESTS_COLLECTION = 'demoRequests';
 
 const submitDemoRequestFlow = ai.defineFlow(
   {
@@ -30,14 +29,13 @@ const submitDemoRequestFlow = ai.defineFlow(
     outputSchema: z.void(),
   },
   async (input) => {
-    const newRequest: DemoRequest = {
+    const newRequest: Omit<DemoRequest, 'id'> = {
       ...input,
-      id: `DR-${Date.now()}-${requestCounter++}`,
       date: format(new Date(), 'yyyy-MM-dd HH:mm'),
       status: "Pending", // Default status
     };
-    demoRequests.push(newRequest);
-    console.log('New demo request submitted:', newRequest);
+    await addDocument(DEMO_REQUESTS_COLLECTION, newRequest);
+    console.log('New demo request submitted to Firestore:', newRequest);
   }
 );
 
@@ -48,8 +46,7 @@ const getDemoRequestsFlow = ai.defineFlow(
     outputSchema: z.array(DemoRequestSchema),
   },
   async () => {
-    // Return requests in reverse chronological order
-    return [...demoRequests].reverse();
+    return getDocuments<DemoRequest>(DEMO_REQUESTS_COLLECTION, 'date', 'desc');
   }
 );
 
@@ -63,14 +60,8 @@ const updateDemoRequestStatusFlow = ai.defineFlow(
     outputSchema: z.boolean(),
   },
   async ({ id, status }) => {
-    const requestIndex = demoRequests.findIndex(req => req.id === id);
-    if (requestIndex === -1) {
-      console.error(`Demo request with ID ${id} not found.`);
-      return false;
-    }
-    demoRequests[requestIndex].status = status;
-    console.log(`Updated status for demo request ${id} to ${status}`);
-    return true;
+    console.log(`Updating status for demo request ${id} to ${status}`);
+    return updateDocument(DEMO_REQUESTS_COLLECTION, id, { status });
   }
 );
 

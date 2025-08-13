@@ -23,6 +23,7 @@ export const OrderInputSchema = z.object({
 export type OrderInput = z.infer<typeof OrderInputSchema>;
 
 export const OrderSchema = OrderInputSchema.extend({
+  id: z.string(), // Firestore document ID
   orderId: z.string(),
   date: z.string(),
 });
