@@ -17,7 +17,7 @@ export function Footer() {
             <div className="container grid grid-cols-2 md:grid-cols-4 gap-8 py-12">
                 <div className="col-span-full md:col-span-1">
                     <Link href="/" className="flex items-center space-x-2">
-                        <Image src="https://oushodcloud.com/public/uploads/25/07/1752687224-974.svg" alt="OushodCloud Logo" width={32} height={32} />
+                        <Image src="https://oushodcloud.com/public/uploads/25/07/1752687224-974.svg" alt="OushodCloud Logo" width={170} height={40} />
                          <span className="sr-only font-bold">OushodCloud</span>
                     </Link>
                     <p className="text-muted-foreground mt-2 font-bangla">
