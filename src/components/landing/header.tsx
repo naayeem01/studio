@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Menu, Syringe } from "lucide-react";
+import { Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -9,6 +9,7 @@ import {
   SheetClose,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import Image from "next/image";
 
 export function Header() {
   const navLinks = [
@@ -23,7 +24,7 @@ export function Header() {
       <div className="container flex h-16 items-center">
         <div className="mr-4 hidden md:flex">
           <Link href="/" className="mr-6 flex items-center space-x-2">
-            <Syringe className="h-6 w-6 text-primary" />
+            <Image src="https://oushodcloud.com/public/uploads/25/07/1752687224-974.svg" alt="OushodCloud Logo" width={32} height={32} />
             <span className="font-bold">OushodCloud</span>
           </Link>
           <nav className="flex items-center space-x-6 text-sm font-medium">
@@ -50,7 +51,7 @@ export function Header() {
               </SheetTrigger>
               <SheetContent side="left" className="pr-0">
                 <Link href="/" className="mr-6 flex items-center space-x-2">
-                    <Syringe className="h-6 w-6 text-primary" />
+                    <Image src="https://oushodcloud.com/public/uploads/25/07/1752687224-974.svg" alt="OushodCloud Logo" width={32} height={32} />
                     <span className="font-bold">OushodCloud</span>
                 </Link>
                 <div className="my-6 flex flex-col space-y-3">

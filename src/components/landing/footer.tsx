@@ -1,8 +1,9 @@
 "use client";
 
-import { Syringe, Facebook, Twitter, Linkedin } from 'lucide-react';
+import { Facebook, Twitter, Linkedin } from 'lucide-react';
 import Link from "next/link";
 import React, { useState, useEffect } from 'react';
+import Image from "next/image";
 
 export function Footer() {
     const [year, setYear] = useState(new Date().getFullYear());
@@ -16,7 +17,7 @@ export function Footer() {
             <div className="container grid grid-cols-2 md:grid-cols-4 gap-8 py-12">
                 <div className="col-span-full md:col-span-1">
                     <Link href="/" className="flex items-center space-x-2">
-                        <Syringe className="h-6 w-6 text-primary" />
+                        <Image src="https://oushodcloud.com/public/uploads/25/07/1752687224-974.svg" alt="OushodCloud Logo" width={32} height={32} />
                         <span className="font-bold text-xl">OushodCloud</span>
                     </Link>
                     <p className="text-muted-foreground mt-2 font-bangla">
