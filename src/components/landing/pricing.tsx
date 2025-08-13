@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Check, Printer, Barcode } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
+import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 
 const pricingTiers = [
     {
@@ -34,14 +36,18 @@ const pricingTiers = [
 
 const addons = [
   {
+    id: "pos-printer",
     icon: <Printer className="w-10 h-10 text-primary" />,
     title: "POS Printer",
-    description: "High-quality thermal printers for fast receipt printing."
+    description: "High-quality thermal printers for fast receipt printing.",
+    price: "৳3,999"
   },
   {
+    id: "barcode-scanner",
     icon: <Barcode className="w-10 h-10 text-primary" />,
     title: "Barcode Scanner",
-    description: "Efficiently scan products and speed up your checkout process."
+    description: "Efficiently scan products and speed up your checkout process.",
+    price: "৳3,999"
   }
 ];
 
@@ -111,15 +117,17 @@ export function Pricing() {
               <p className="text-xl text-muted-foreground text-center mt-4 mb-8 font-bangla">
                 আপনার ফার্মেসীর জন্য প্রয়োজনীয় হার্ডওয়্যার যুক্ত করুন।
               </p>
-              <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+              <div className="max-w-md mx-auto space-y-4">
                 {addons.map(addon => (
-                  <Card key={addon.title} className="bg-muted/40 p-6 flex flex-col items-center text-center">
-                    <div className="mb-4">
-                      {addon.icon}
+                  <Card key={addon.id} className="p-4 flex items-center justify-between bg-muted/40">
+                    <div className="flex items-center gap-4">
+                      <Checkbox id={addon.id} aria-label={`Select ${addon.title}`} />
+                      <Label htmlFor={addon.id} className="flex flex-col">
+                        <span className="font-bold">{addon.title}</span>
+                        <span className="text-sm text-muted-foreground">{addon.description}</span>
+                      </Label>
                     </div>
-                    <h4 className="text-xl font-bold mb-2">{addon.title}</h4>
-                    <p className="text-muted-foreground">{addon.description}</p>
-                    <Button variant="outline" className="mt-6">Contact for Price</Button>
+                    <div className="font-bold text-lg">{addon.price}</div>
                   </Card>
                 ))}
               </div>
