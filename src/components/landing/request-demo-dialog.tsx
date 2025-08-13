@@ -25,11 +25,14 @@ import {
   DialogClose,
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
+import { submitDemoRequest } from "@/ai/flows/demo-request-flow";
+import { type DemoRequestInput } from "@/lib/types/demo-request";
+
 
 const demoRequestSchema = z.object({
-  name: z.string().min(2, { message: "Name must be at least 2 characters." }),
-  email: z.string().email({ message: "Please enter a valid email address." }),
-  mobile: z.string().min(10, { message: "Mobile number must be at least 10 digits." }),
+  name: z.string().min(2, { message: "নাম কমপক্ষে ২টি অক্ষরের হতে হবে।" }),
+  email: z.string().email({ message: "অনুগ্রহ করে একটি বৈধ ইমেইল ঠিকানা লিখুন।" }),
+  mobile: z.string().min(10, { message: "মোবাইল নম্বর কমপক্ষে ১০ সংখ্যার হতে হবে।" }),
   message: z.string().optional(),
 });
 
@@ -50,24 +53,39 @@ export function RequestDemoDialog({ open, onOpenChange }: RequestDemoDialogProps
     },
   });
 
-  function onSubmit(values: z.infer<typeof demoRequestSchema>) {
-    console.log("Demo request submitted:", values);
-    // Here you would typically send the data to your backend
-    toast({
-      title: "Request Sent!",
-      description: "Thank you for your interest. We will contact you shortly to schedule a demo.",
-    });
-    form.reset();
-    onOpenChange(false);
+  async function onSubmit(values: z.infer<typeof demoRequestSchema>) {
+    const requestData: DemoRequestInput = {
+      name: values.name,
+      email: values.email,
+      mobile: values.mobile,
+      message: values.message || "",
+    }
+    
+    try {
+        await submitDemoRequest(requestData);
+        toast({
+          title: "আপনার অনুরোধ পাঠানো হয়েছে!",
+          description: "ধন্যবাদ! আমরা শীঘ্রই আপনার সাথে একটি ডেমো সময়সূচী করতে যোগাযোগ করব।",
+        });
+        form.reset();
+        onOpenChange(false);
+    } catch (error) {
+        console.error("Failed to submit demo request:", error);
+        toast({
+            title: "ত্রুটি",
+            description: "দুঃখিত, আপনার অনুরোধ পাঠাতে একটি সমস্যা হয়েছে। অনুগ্রহ করে আবার চেষ্টা করুন।",
+            variant: "destructive",
+        })
+    }
   }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Request a Demo</DialogTitle>
-          <DialogDescription>
-            Fill out the form below and we'll get in touch to schedule a personalized demo.
+          <DialogTitle className="font-bangla">একটি ডেমোর জন্য অনুরোধ করুন</DialogTitle>
+          <DialogDescription className="font-bangla">
+          নীচের ফর্মটি পূরণ করুন এবং আমরা একটি ব্যক্তিগতকৃত ডেমো সময়সূচী করতে যোগাযোগ করব।
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -77,9 +95,9 @@ export function RequestDemoDialog({ open, onOpenChange }: RequestDemoDialogProps
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Full Name</FormLabel>
+                  <FormLabel className="font-bangla">পুরো নাম</FormLabel>
                   <FormControl>
-                    <Input placeholder="John Doe" {...field} />
+                    <Input placeholder="মোঃ আব্দুল্লাহ" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -90,7 +108,7 @@ export function RequestDemoDialog({ open, onOpenChange }: RequestDemoDialogProps
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Email Address</FormLabel>
+                  <FormLabel className="font-bangla">ইমেইল ঠিকানা</FormLabel>
                   <FormControl>
                     <Input placeholder="you@example.com" {...field} />
                   </FormControl>
@@ -103,9 +121,9 @@ export function RequestDemoDialog({ open, onOpenChange }: RequestDemoDialogProps
               name="mobile"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Mobile Number</FormLabel>
+                  <FormLabel className="font-bangla">মোবাইল নম্বর</FormLabel>
                   <FormControl>
-                    <Input placeholder="+8801234567890" {...field} />
+                    <Input placeholder="+৮৮০১২৩৪৫৬৭৮৯০" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -116,9 +134,9 @@ export function RequestDemoDialog({ open, onOpenChange }: RequestDemoDialogProps
               name="message"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Message (Optional)</FormLabel>
+                  <FormLabel className="font-bangla">বার্তা (ঐচ্ছিক)</FormLabel>
                   <FormControl>
-                    <Textarea placeholder="Tell us about your pharmacy or any specific questions you have." {...field} />
+                    <Textarea placeholder="আপনার ফার্মেসী সম্পর্কে বা আপনার কোন নির্দিষ্ট প্রশ্ন থাকলে আমাদের জানান।" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -126,11 +144,11 @@ export function RequestDemoDialog({ open, onOpenChange }: RequestDemoDialogProps
             />
             <DialogFooter>
               <DialogClose asChild>
-                <Button type="button" variant="secondary">
-                  Cancel
+                <Button type="button" variant="secondary" className="font-bangla">
+                 বাতিল করুন
                 </Button>
               </DialogClose>
-              <Button type="submit">Submit Request</Button>
+              <Button type="submit" className="font-bangla">অনুরোধ জমা দিন</Button>
             </DialogFooter>
           </form>
         </Form>

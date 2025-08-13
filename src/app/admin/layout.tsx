@@ -11,7 +11,7 @@ import {
   SidebarMenuButton,
   SidebarFooter,
 } from "@/components/ui/sidebar";
-import { Home, ShoppingCart, User, LogOut } from "lucide-react";
+import { Home, ShoppingCart, User, LogOut, MessageSquareQuote } from "lucide-react";
 import Link from 'next/link';
 import Image from "next/image";
 
@@ -43,6 +43,14 @@ export default function AdminLayout({
                     <SidebarMenuButton tooltip="Orders">
                         <ShoppingCart />
                         Orders
+                    </SidebarMenuButton>
+                </Link>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+                <Link href="/admin/requests" passHref>
+                    <SidebarMenuButton tooltip="Demo Requests">
+                        <MessageSquareQuote />
+                        Demo Requests
                     </SidebarMenuButton>
                 </Link>
             </SidebarMenuItem>
