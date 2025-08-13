@@ -21,7 +21,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Header } from '@/components/landing/header';
 import { Footer } from '@/components/landing/footer';
 import { useToast } from "@/hooks/use-toast";
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 const checkoutFormSchema = z.object({
   pharmacyName: z.string().min(2, { message: "Pharmacy name must be at least 2 characters." }),
@@ -29,15 +29,29 @@ const checkoutFormSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email address." }),
   mobile: z.string().min(10, { message: "Mobile number must be at least 10 digits." }),
   address: z.string().min(5, { message: "Address must be at least 5 characters." }),
+  posDeliveryAddress: z.string().optional(),
   plan: z.string(),
   price: z.string(),
+  addons: z.array(z.string()),
 });
 
 export default function CheckoutPage() {
   const searchParams = useSearchParams();
   const { toast } = useToast();
+  const [showPosAddress, setShowPosAddress] = useState(false);
+
   const plan = searchParams.get('plan') || 'N/A';
   const price = searchParams.get('price') || 'N/A';
+  const addons = searchParams.getAll('addon');
+
+  useEffect(() => {
+    // Show the delivery address field if any hardware addon is selected
+    if (addons.includes('pos-printer') || addons.includes('barcode-scanner')) {
+      setShowPosAddress(true);
+    } else {
+      setShowPosAddress(false);
+    }
+  }, [addons]);
 
   const form = useForm<z.infer<typeof checkoutFormSchema>>({
     resolver: zodResolver(checkoutFormSchema),
@@ -47,10 +61,30 @@ export default function CheckoutPage() {
       email: "",
       mobile: "",
       address: "",
+      posDeliveryAddress: "",
       plan: plan,
       price: price,
+      addons: addons,
     },
   });
+
+  // Add conditional validation for posDeliveryAddress
+  useEffect(() => {
+    form.trigger('posDeliveryAddress');
+  }, [showPosAddress, form]);
+
+  const conditionalSchema = checkoutFormSchema.superRefine((data, ctx) => {
+    if (showPosAddress && (!data.posDeliveryAddress || data.posDeliveryAddress.length < 5)) {
+        ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ['posDeliveryAddress'],
+            message: 'POS delivery address must be at least 5 characters.',
+        });
+    }
+  });
+  
+  form.resolver = zodResolver(conditionalSchema);
+
 
   function onSubmit(values: z.infer<typeof checkoutFormSchema>) {
     console.log("Checkout form submitted:", values);
@@ -59,7 +93,15 @@ export default function CheckoutPage() {
       title: "Order Placed!",
       description: "Thank you for your purchase. We will be in touch shortly.",
     });
-    form.reset();
+    form.reset({
+        ...values, // Keep the plan, price, etc.
+        pharmacyName: "",
+        ownerName: "",
+        email: "",
+        mobile: "",
+        address: "",
+        posDeliveryAddress: "",
+    });
   }
   
   return (
@@ -133,7 +175,7 @@ export default function CheckoutPage() {
                   name="address"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Full Address</FormLabel>
+                      <FormLabel>Pharmacy Address</FormLabel>
                       <FormControl>
                         <Textarea placeholder="123 Main Street, Dhaka, Bangladesh" {...field} />
                       </FormControl>
@@ -142,9 +184,28 @@ export default function CheckoutPage() {
                   )}
                 />
 
-                <div className="text-lg font-semibold">
+                {showPosAddress && (
+                  <FormField
+                    control={form.control}
+                    name="posDeliveryAddress"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>POS Hardware Delivery Address</FormLabel>
+                        <FormControl>
+                          <Textarea placeholder="Enter the address where we should send the hardware." {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                )}
+
+                <div className="text-lg font-semibold border-t pt-4 mt-4">
                     <p>Plan: <span className="text-primary">{plan}</span></p>
-                    <p>Price: <span className="text-primary">{price}</span></p>
+                    {addons.length > 0 && (
+                       <p>Add-ons: <span className="text-primary text-sm">{addons.join(', ')}</span></p>
+                    )}
+                    <p className="text-2xl mt-2">Total Price: <span className="text-primary font-bold">{price}</span></p>
                 </div>
 
                 <Button type="submit" className="w-full bg-accent text-accent-foreground hover:bg-accent/90 text-lg py-6">

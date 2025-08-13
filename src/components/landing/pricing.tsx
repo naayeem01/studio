@@ -52,17 +52,65 @@ const addons = [
   }
 ];
 
+// Helper to parse price strings like "৳3,999" into numbers
+const parsePrice = (priceStr: string): number => {
+    if (typeof priceStr !== 'string' || !priceStr) return 0;
+    return Number(priceStr.replace(/[^0-9.-]+/g, ""));
+};
+
+type SelectedAddons = {
+  [key: string]: string[];
+};
+
 export function Pricing() {
     const [isYearly, setIsYearly] = useState(false);
+    const [selectedAddons, setSelectedAddons] = useState<SelectedAddons>({
+      Starter: [],
+      Professional: [],
+      Enterprise: [],
+    });
     const router = useRouter();
 
-    const handleBuyNow = (tierName: string, price: string) => {
+    const handleAddonToggle = (tierName: string, addonId: string, checked: boolean) => {
+        setSelectedAddons(prev => {
+            const currentAddons = prev[tierName] || [];
+            const newAddons = checked
+                ? [...currentAddons, addonId]
+                : currentAddons.filter(id => id !== addonId);
+            return { ...prev, [tierName]: newAddons };
+        });
+    };
+
+    const calculateTotalPrice = (tierName: string) => {
+        const tier = pricingTiers.find(t => t.name === tierName);
+        if (!tier || tier.price.monthly === 'Custom') return 'Custom';
+
+        const basePriceStr = isYearly ? tier.price.yearly : tier.price.monthly;
+        let total = parsePrice(basePriceStr);
+
+        const tierAddons = selectedAddons[tierName] || [];
+        tierAddons.forEach(addonId => {
+            const addon = addons.find(a => a.id === addonId);
+            if (addon) {
+                total += parsePrice(addon.price);
+            }
+        });
+
+        return `৳${total.toLocaleString('en-IN')}`;
+    };
+
+    const handleBuyNow = (tierName: string) => {
         if (tierName === 'Enterprise') {
-            // Handle enterprise contact
             console.log('Contacting sales for Enterprise plan');
+            // Or maybe open a contact modal/page
             return;
         }
-        router.push(`/checkout?plan=${encodeURIComponent(tierName)}&price=${encodeURIComponent(price)}`);
+
+        const totalPrice = calculateTotalPrice(tierName);
+        const addonsForTier = selectedAddons[tierName] || [];
+        const addonsQuery = addonsForTier.map(id => `addon=${encodeURIComponent(id)}`).join('&');
+        
+        router.push(`/checkout?plan=${encodeURIComponent(tierName)}&price=${encodeURIComponent(totalPrice)}&${addonsQuery}`);
     }
 
     return (
@@ -115,21 +163,31 @@ export function Pricing() {
                           <div className="space-y-4 rounded-lg p-4 bg-primary/5 border border-primary/20 shadow-inner transition-all duration-300 hover:shadow-primary/20 hover:shadow-md">
                             <h4 className="text-sm font-semibold text-center text-primary">Hardware Add-ons</h4>
                             {addons.map(addon => (
-                              <Label key={addon.id} htmlFor={`${tier.name}-${addon.id}`} className="flex justify-between items-center cursor-pointer p-2 rounded-md hover:bg-primary/10">
-                                <div className="flex items-center gap-3">
-                                  <Checkbox id={`${tier.name}-${addon.id}`} />
+                              <div key={addon.id} className="flex justify-between items-center p-2 rounded-md hover:bg-primary/10">
+                                <Label htmlFor={`${tier.name}-${addon.id}`} className="flex items-center gap-3 cursor-pointer">
+                                  <Checkbox 
+                                    id={`${tier.name}-${addon.id}`}
+                                    onCheckedChange={(checked) => handleAddonToggle(tier.name, addon.id, !!checked)}
+                                    disabled={tier.name === 'Enterprise'}
+                                  />
                                   <span>{addon.title}</span>
-                                </div>
+                                </Label>
                                 <span className="font-bold">{addon.price}</span>
-                              </Label>
+                              </div>
                             ))}
                           </div>
                         </div>
 
-                        <CardFooter>
+                        <CardFooter className="flex flex-col items-stretch !pt-2">
+                            {tier.name !== 'Enterprise' && (
+                                <div className="text-center mb-4 border-t pt-4">
+                                    <p className="text-lg font-semibold">Total: <span className="text-primary">{calculateTotalPrice(tier.name)}</span></p>
+                                </div>
+                            )}
                             <Button 
                                 className={cn("w-full", tier.popular ? "bg-primary hover:bg-primary/90" : "bg-accent text-accent-foreground hover:bg-accent/90")}
-                                onClick={() => handleBuyNow(tier.name, isYearly ? tier.price.yearly : tier.price.monthly)}
+                                onClick={() => handleBuyNow(tier.name)}
+                                disabled={tier.name !== 'Enterprise' && calculateTotalPrice(tier.name) === 'Custom'}
                             >
                                 {tier.name === 'Enterprise' ? "Contact Sales" : "Buy Now"}
                             </Button>
