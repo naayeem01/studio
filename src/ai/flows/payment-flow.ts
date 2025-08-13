@@ -56,7 +56,7 @@ const createPaymentFlow = ai.defineFlow(
     };
 
     try {
-      const response = await fetch(`${apiUrl}/api/checkout`, {
+      const response = await fetch(`${apiUrl}/api/checkout-v2`, {
         method: 'POST',
         headers: {
           'RT-UDDOKTAPAY-API-KEY': apiKey,
