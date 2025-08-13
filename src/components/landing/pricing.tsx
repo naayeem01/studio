@@ -8,6 +8,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Separator } from "@/components/ui/separator";
 
 const pricingTiers = [
     {
@@ -37,17 +38,13 @@ const pricingTiers = [
 const addons = [
   {
     id: "pos-printer",
-    icon: <Printer className="w-10 h-10 text-primary" />,
     title: "POS Printer",
-    description: "High-quality thermal printers for fast receipt printing.",
     price: "৳3,999"
   },
   {
     id: "barcode-scanner",
-    icon: <Barcode className="w-10 h-10 text-primary" />,
     title: "Barcode Scanner",
-    description: "Efficiently scan products and speed up your checkout process.",
-    price: "৳3,999"
+    price: "৳1499"
   }
 ];
 
@@ -98,6 +95,23 @@ export function Pricing() {
                                 ))}
                             </ul>
                         </CardContent>
+
+                        <div className="p-6 pt-0">
+                          <Separator className="my-4" />
+                          <div className="space-y-4 rounded-lg p-4 bg-primary/5 border border-primary/20 shadow-inner transition-all duration-300 hover:shadow-primary/20 hover:shadow-md">
+                            <h4 className="text-sm font-semibold text-center text-primary">Hardware Add-ons</h4>
+                            {addons.map(addon => (
+                              <Label key={addon.id} htmlFor={`${tier.name}-${addon.id}`} className="flex justify-between items-center cursor-pointer p-2 rounded-md hover:bg-primary/10">
+                                <div className="flex items-center gap-3">
+                                  <Checkbox id={`${tier.name}-${addon.id}`} />
+                                  <span>{addon.title}</span>
+                                </div>
+                                <span className="font-bold">{addon.price}</span>
+                              </Label>
+                            ))}
+                          </div>
+                        </div>
+
                         <CardFooter>
                             <Button className={cn("w-full", tier.popular ? "bg-primary hover:bg-primary/90" : "bg-accent text-accent-foreground hover:bg-accent/90")}>
                                 {tier.name === 'Enterprise' ? "Contact Sales" : "Buy Now"}
@@ -105,32 +119,6 @@ export function Pricing() {
                         </CardFooter>
                     </Card>
                 ))}
-            </div>
-
-            <div className="mt-24">
-              <h3 className="text-3xl md:text-4xl font-bold text-center">
-                Hardware{" "}
-                <span className="bg-gradient-to-b from-primary/60 to-primary text-transparent bg-clip-text">
-                Add-ons
-                </span>
-              </h3>
-              <p className="text-xl text-muted-foreground text-center mt-4 mb-8 font-bangla">
-                আপনার ফার্মেসীর জন্য প্রয়োজনীয় হার্ডওয়্যার যুক্ত করুন।
-              </p>
-              <div className="max-w-md mx-auto space-y-4">
-                {addons.map(addon => (
-                  <Card key={addon.id} className="p-4 flex items-center justify-between bg-muted/40">
-                    <div className="flex items-center gap-4">
-                      <Checkbox id={addon.id} aria-label={`Select ${addon.title}`} />
-                      <Label htmlFor={addon.id} className="flex flex-col">
-                        <span className="font-bold">{addon.title}</span>
-                        <span className="text-sm text-muted-foreground">{addon.description}</span>
-                      </Label>
-                    </div>
-                    <div className="font-bold text-lg">{addon.price}</div>
-                  </Card>
-                ))}
-              </div>
             </div>
         </section>
     );

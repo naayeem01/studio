@@ -25,7 +25,7 @@ export function Header() {
         <div className="mr-4 hidden md:flex">
           <Link href="/" className="mr-6 flex items-center space-x-2">
             <Image src="https://oushodcloud.com/public/uploads/25/07/1752687224-974.svg" alt="OushodCloud Logo" width={32} height={32} />
-            <span className="font-bold">OushodCloud</span>
+            <span className="sr-only font-bold">OushodCloud</span>
           </Link>
           <nav className="flex items-center space-x-6 text-sm font-medium">
             {navLinks.map((link) => (
@@ -52,7 +52,7 @@ export function Header() {
               <SheetContent side="left" className="pr-0">
                 <Link href="/" className="mr-6 flex items-center space-x-2">
                     <Image src="https://oushodcloud.com/public/uploads/25/07/1752687224-974.svg" alt="OushodCloud Logo" width={32} height={32} />
-                    <span className="font-bold">OushodCloud</span>
+                    <span className="sr-only font-bold">OushodCloud</span>
                 </Link>
                 <div className="my-6 flex flex-col space-y-3">
                     {navLinks.map((link) => (
@@ -69,6 +69,11 @@ export function Header() {
               </SheetContent>
             </Sheet>
           </div>
+          
+          <Link href="/" className="md:hidden">
+            <Image src="https://oushodcloud.com/public/uploads/25/07/1752687224-974.svg" alt="OushodCloud Logo" width={32} height={32} />
+            <span className="sr-only font-bold">OushodCloud</span>
+          </Link>
 
           <Button className="hidden sm:inline-flex bg-accent text-accent-foreground hover:bg-accent/90">
             Buy Now
