@@ -249,7 +249,7 @@ export default function CheckoutPage() {
                   </div>
 
                   <Button type="submit" className="w-full bg-accent text-accent-foreground hover:bg-accent/90 text-lg py-6 font-bangla">
-                  অর্ডার নিশ্চিত করুন এবং পেমেন্টের জন্য এগিয়ে যান
+                  অর্ডার নিশ্চিত করুন
                   </Button>
                 </form>
               </Form>
