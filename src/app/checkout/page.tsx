@@ -1,3 +1,4 @@
+
 // app/checkout/page.tsx
 "use client";
 
@@ -33,11 +34,11 @@ import {
 
 
 const checkoutFormSchema = z.object({
-  pharmacyName: z.string().min(2, { message: "Pharmacy name must be at least 2 characters." }),
-  ownerName: z.string().min(2, { message: "Owner name must be at least 2 characters." }),
-  email: z.string().email({ message: "Please enter a valid email address." }),
-  mobile: z.string().min(10, { message: "Mobile number must be at least 10 digits." }),
-  address: z.string().min(5, { message: "Address must be at least 5 characters." }),
+  pharmacyName: z.string().min(2, { message: "ফার্মেসীর নাম কমপক্ষে ২টি অক্ষরের হতে হবে।" }),
+  ownerName: z.string().min(2, { message: "মালিকের নাম কমপক্ষে ২টি অক্ষরের হতে হবে।" }),
+  email: z.string().email({ message: "অনুগ্রহ করে একটি বৈধ ইমেইল ঠিকানা লিখুন।" }),
+  mobile: z.string().min(10, { message: "মোবাইল নম্বর কমপক্ষে ১০ সংখ্যার হতে হবে।" }),
+  address: z.string().min(5, { message: "ঠিকানা কমপক্ষে ৫টি অক্ষরের হতে হবে।" }),
   posDeliveryAddress: z.string().optional(),
   plan: z.string(),
   price: z.string(),
@@ -89,7 +90,7 @@ export default function CheckoutPage() {
         ctx.addIssue({
             code: z.ZodIssueCode.custom,
             path: ['posDeliveryAddress'],
-            message: 'POS delivery address must be at least 5 characters.',
+            message: 'POS ডেলিভারির ঠিকানা কমপক্ষে ৫টি অক্ষরের হতে হবে।',
         });
     }
   });
@@ -131,8 +132,8 @@ export default function CheckoutPage() {
         <main className="flex-grow container py-12 md:py-24">
           <Card className="max-w-2xl mx-auto">
             <CardHeader>
-              <CardTitle className="text-3xl">Checkout</CardTitle>
-              <CardDescription>You've selected the <span className="font-bold text-primary">{plan}</span> plan. Please fill out the form below to complete your order.</CardDescription>
+              <CardTitle className="text-3xl font-bangla">চেকআউট</CardTitle>
+              <CardDescription className="font-bangla">আপনি <span className="font-bold text-primary">{plan}</span> প্ল্যানটি নির্বাচন করেছেন। আপনার অর্ডারটি সম্পূর্ণ করতে অনুগ্রহ করে নিচের ফর্মটি পূরণ করুন।</CardDescription>
             </CardHeader>
             <CardContent>
               <Form {...form}>
@@ -143,9 +144,9 @@ export default function CheckoutPage() {
                       name="pharmacyName"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Pharmacy Name</FormLabel>
+                          <FormLabel className="font-bangla">ফার্মেসীর নাম</FormLabel>
                           <FormControl>
-                            <Input placeholder="Your Pharmacy LLC" {...field} />
+                            <Input placeholder="আপনার ফার্মেসী এলএলসি" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -156,9 +157,9 @@ export default function CheckoutPage() {
                       name="ownerName"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Owner Name</FormLabel>
+                          <FormLabel className="font-bangla">মালিকের নাম</FormLabel>
                           <FormControl>
-                            <Input placeholder="John Doe" {...field} />
+                            <Input placeholder="মোঃ আব্দুল্লাহ" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -170,7 +171,7 @@ export default function CheckoutPage() {
                     name="email"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Email Address</FormLabel>
+                        <FormLabel className="font-bangla">ইমেইল ঠিকানা</FormLabel>
                         <FormControl>
                           <Input placeholder="you@example.com" {...field} />
                         </FormControl>
@@ -183,9 +184,9 @@ export default function CheckoutPage() {
                     name="mobile"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Mobile Number</FormLabel>
+                        <FormLabel className="font-bangla">মোবাইল নম্বর</FormLabel>
                         <FormControl>
-                          <Input placeholder="+8801234567890" {...field} />
+                          <Input placeholder="+৮৮০১২৩৪৫৬৭৮৯০" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -196,9 +197,9 @@ export default function CheckoutPage() {
                     name="address"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Pharmacy Address</FormLabel>
+                        <FormLabel className="font-bangla">ফার্মেসীর ঠিকানা</FormLabel>
                         <FormControl>
-                          <Textarea placeholder="123 Main Street, Dhaka, Bangladesh" {...field} />
+                          <Textarea placeholder="১২৩ মেইন স্ট্রিট, ঢাকা, বাংলাদেশ" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -211,9 +212,9 @@ export default function CheckoutPage() {
                       name="posDeliveryAddress"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>POS Hardware Delivery Address</FormLabel>
+                          <FormLabel className="font-bangla">POS হার্ডওয়্যার ডেলিভারির ঠিকানা</FormLabel>
                           <FormControl>
-                            <Textarea placeholder="Enter the address where we should send the hardware." {...field} />
+                            <Textarea placeholder="যে ঠিকানায় আমরা হার্ডওয়্যার পাঠাব সেটি লিখুন।" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -221,16 +222,16 @@ export default function CheckoutPage() {
                     />
                   )}
 
-                  <div className="text-lg font-semibold border-t pt-4 mt-4">
-                      <p>Plan: <span className="text-primary">{plan}</span></p>
+                  <div className="text-lg font-semibold border-t pt-4 mt-4 font-bangla">
+                      <p>প্ল্যান: <span className="text-primary">{plan}</span></p>
                       {addons.length > 0 && (
-                         <p>Add-ons: <span className="text-primary text-sm">{addons.join(', ')}</span></p>
+                         <p>অ্যাড-অন: <span className="text-primary text-sm">{addons.join(', ')}</span></p>
                       )}
-                      <p className="text-2xl mt-2">Total Price: <span className="text-primary font-bold">{price}</span></p>
+                      <p className="text-2xl mt-2">মোট মূল্য: <span className="text-primary font-bold">{price}</span></p>
                   </div>
 
-                  <Button type="submit" className="w-full bg-accent text-accent-foreground hover:bg-accent/90 text-lg py-6">
-                    Confirm Order & Proceed to Payment
+                  <Button type="submit" className="w-full bg-accent text-accent-foreground hover:bg-accent/90 text-lg py-6 font-bangla">
+                  অর্ডার নিশ্চিত করুন এবং পেমেন্টের জন্য এগিয়ে যান
                   </Button>
                 </form>
               </Form>
@@ -243,13 +244,13 @@ export default function CheckoutPage() {
       <AlertDialog open={isOrderConfirmedDialogOpen} onOpenChange={setIsOrderConfirmedDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Order Placed Successfully!</AlertDialogTitle>
-            <AlertDialogDescription>
-              Thank you for your purchase. Your order number is <span className="font-bold text-primary">{orderNumber}</span>. We will be in touch shortly with further details.
+            <AlertDialogTitle className="font-bangla">অর্ডার সফলভাবে প্লেস করা হয়েছে!</AlertDialogTitle>
+            <AlertDialogDescription className="font-bangla">
+            আপনার কেনার জন্য ধন্যবাদ। আপনার অর্ডার নম্বর হলো <span className="font-bold text-primary">{orderNumber}</span>। আমরা শীঘ্রই আপনার সাথে আরও বিস্তারিত তথ্য নিয়ে যোগাযোগ করব।
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogAction onClick={handleDialogClose}>Close</AlertDialogAction>
+            <AlertDialogAction onClick={handleDialogClose} className="font-bangla">বন্ধ করুন</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
