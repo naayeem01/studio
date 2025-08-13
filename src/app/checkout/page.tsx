@@ -31,6 +31,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { submitOrder, OrderInput } from '@/ai/flows/order-flow';
 
 
 const checkoutFormSchema = z.object({
@@ -98,14 +99,30 @@ export default function CheckoutPage() {
   form.resolver = zodResolver(conditionalSchema);
 
 
-  function onSubmit(values: z.infer<typeof checkoutFormSchema>) {
-    console.log("Checkout form submitted:", values);
-    // Here you would typically handle the order submission to your backend
-    
-    // Generate a simple random order number for confirmation
-    const newOrderNumber = `OC-${Math.floor(Math.random() * 90000) + 10000}`;
-    setOrderNumber(newOrderNumber);
-    setIsOrderConfirmedDialogOpen(true);
+  async function onSubmit(values: z.infer<typeof checkoutFormSchema>) {
+    const orderData: OrderInput = {
+        customer: {
+            name: values.ownerName,
+            email: values.email,
+        },
+        plan: values.plan,
+        totalPrice: values.price,
+        status: "Pending", // Default status
+        addons: values.addons,
+        pharmacyName: values.pharmacyName,
+        mobile: values.mobile,
+        address: values.address,
+        posDeliveryAddress: values.posDeliveryAddress,
+    }
+
+    try {
+        const result = await submitOrder(orderData);
+        setOrderNumber(result.orderId);
+        setIsOrderConfirmedDialogOpen(true);
+    } catch (error) {
+        console.error("Failed to submit order:", error);
+        // Optionally, show an error toast to the user
+    }
   }
 
   const handleDialogClose = () => {
