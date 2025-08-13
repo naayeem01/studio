@@ -18,6 +18,36 @@ const orders: Order[] = [];
 
 let orderCounter = 1005; // Start after mock data
 
+async function sendSms(to: string, message: string) {
+    const apiKey = process.env.SMS_API_KEY;
+    if (!apiKey || apiKey === "YOUR_API_KEY") {
+        console.warn("SMS API Key not configured. Skipping SMS.");
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('api_key', apiKey);
+    formData.append('msg', message);
+    formData.append('to', to);
+
+    try {
+        const response = await fetch('https://api.sms.net.bd/sendsms', {
+            method: 'POST',
+            body: formData,
+        });
+
+        const result = await response.json(); // sms.net.bd seems to return JSON
+        if (result.status === 'success') {
+            console.log('SMS sent successfully to:', to);
+        } else {
+            console.error('Failed to send SMS:', result.response_msg || 'Unknown error');
+        }
+    } catch (error) {
+        console.error('Error sending SMS:', error);
+    }
+}
+
+
 const submitOrderFlow = ai.defineFlow(
   {
     name: 'submitOrderFlow',
@@ -33,6 +63,11 @@ const submitOrderFlow = ai.defineFlow(
     };
     orders.push(newOrder);
     console.log('New order submitted:', newOrder);
+
+    // Send confirmation SMS
+    const smsMessage = `Thanks for your order at OushodCloud! Your order number is ${newOrder.orderId}. We will contact you shortly.`;
+    await sendSms(newOrder.mobile, smsMessage);
+
     return { orderId: newOrder.orderId };
   }
 );
