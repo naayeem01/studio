@@ -5,16 +5,24 @@
  *
  * - submitOrder - Creates a new order and stores it.
  * - getOrders - Retrieves all stored orders.
+ * - updateOrderStatus - Updates the status of a specific order.
+ * - deleteOrder - Deletes a specific order.
  */
 
 import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
 import { format } from 'date-fns';
-import { OrderInputSchema, OrderSchema, type Order, type OrderInput } from '@/lib/types/order';
+import { 
+    OrderInputSchema, 
+    OrderSchema, 
+    type Order, 
+    type OrderInput,
+    type OrderStatus
+} from '@/lib/types/order';
 
 
 // In-memory store for orders. NOTE: This will be cleared on server restart.
-const orders: Order[] = [];
+let orders: Order[] = [];
 
 let orderCounter = 1005; // Start after mock data
 
@@ -84,6 +92,47 @@ const getOrdersFlow = ai.defineFlow(
   }
 );
 
+const updateOrderStatusFlow = ai.defineFlow(
+  {
+    name: 'updateOrderStatusFlow',
+    inputSchema: z.object({ 
+        orderId: z.string(), 
+        status: z.enum(["Pending Payment", "Paid", "Processing", "Shipped", "Cancelled"]) 
+    }),
+    outputSchema: z.boolean(),
+  },
+  async ({ orderId, status }) => {
+    const requestIndex = orders.findIndex(req => req.orderId === orderId);
+    if (requestIndex === -1) {
+      console.error(`Order with ID ${orderId} not found.`);
+      return false;
+    }
+    orders[requestIndex].status = status;
+    console.log(`Updated status for order ${orderId} to ${status}`);
+    return true;
+  }
+);
+
+const deleteOrderFlow = ai.defineFlow(
+  {
+    name: 'deleteOrderFlow',
+    inputSchema: z.string(), // Expects orderId
+    outputSchema: z.boolean(),
+  },
+  async (orderId) => {
+    const initialLength = orders.length;
+    orders = orders.filter(req => req.orderId !== orderId);
+    if (orders.length < initialLength) {
+        console.log(`Order with ID ${orderId} deleted.`);
+        return true;
+    } else {
+        console.error(`Order with ID ${orderId} not found for deletion.`);
+        return false;
+    }
+  }
+);
+
+
 // Exported wrapper functions for client-side usage
 export async function submitOrder(input: OrderInput): Promise<{ orderId: string }> {
   return submitOrderFlow(input);
@@ -91,4 +140,12 @@ export async function submitOrder(input: OrderInput): Promise<{ orderId: string 
 
 export async function getOrders(): Promise<Order[]> {
   return getOrdersFlow();
+}
+
+export async function updateOrderStatus(orderId: string, status: OrderStatus): Promise<boolean> {
+    return updateOrderStatusFlow({ orderId, status });
+}
+
+export async function deleteOrder(orderId: string): Promise<boolean> {
+    return deleteOrderFlow(orderId);
 }

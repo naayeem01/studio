@@ -32,7 +32,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { submitOrder } from '@/ai/flows/order-flow';
-import { type OrderInput } from '@/lib/types/order';
+import { type OrderInput, OrderStatusSchema } from '@/lib/types/order';
 import { createPayment } from '@/ai/flows/payment-flow';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
@@ -119,7 +119,7 @@ export default function CheckoutPage() {
         },
         plan: values.plan,
         totalPrice: values.price,
-        status: "Pending Payment", // Updated status
+        status: "Pending Payment",
         addons: values.addons,
         pharmacyName: values.pharmacyName,
         mobile: values.mobile,

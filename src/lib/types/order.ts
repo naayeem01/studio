@@ -6,11 +6,14 @@ const CustomerSchema = z.object({
   email: z.string().email(),
 });
 
+export const OrderStatusSchema = z.enum(["Pending Payment", "Paid", "Processing", "Shipped", "Cancelled"]);
+export type OrderStatus = z.infer<typeof OrderStatusSchema>;
+
 export const OrderInputSchema = z.object({
   customer: CustomerSchema,
   plan: z.string(),
   totalPrice: z.string(),
-  status: z.string(),
+  status: OrderStatusSchema,
   addons: z.array(z.string()),
   pharmacyName: z.string(),
   mobile: z.string(),
