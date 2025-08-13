@@ -31,7 +31,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { submitOrder, OrderInput } from '@/ai/flows/order-flow';
+import { submitOrder } from '@/ai/flows/order-flow';
+import { type OrderInput } from '@/lib/types/order';
 
 
 const checkoutFormSchema = z.object({
@@ -91,7 +92,7 @@ export default function CheckoutPage() {
         ctx.addIssue({
             code: z.ZodIssueCode.custom,
             path: ['posDeliveryAddress'],
-            message: 'POS ডেলিভারির ঠিকানা কমপক্ষে ৫টি অক্ষরের হতে হবে।',
+            message: 'POS হার্ডওয়্যার ডেলিভারির ঠিকানা কমপক্ষে ৫টি অক্ষরের হতে হবে।',
         });
     }
   });

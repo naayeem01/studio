@@ -12,7 +12,8 @@ import {
   TableCell,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { getOrders, Order } from "@/ai/flows/order-flow";
+import { getOrders } from "@/ai/flows/order-flow";
+import { type Order } from "@/lib/types/order";
 import {
     Pagination,
     PaginationContent,
