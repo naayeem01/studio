@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 export function CTA() {
   return (
@@ -10,8 +11,8 @@ export function CTA() {
         <p className="text-xl text-muted-foreground mt-4 mb-8 font-bangla">
           OushodCloud এর সাথে আপনার ব্যবসাকে দিন নতুন গতি। কোন প্রশ্ন আছে? আমাদের সাথে কথা বলুন।
         </p>
-        <Button className="w-full md:w-auto bg-accent text-accent-foreground hover:bg-accent/90 px-8 py-6 text-lg">
-            Get Started Now
+        <Button className="w-full md:w-auto bg-accent text-accent-foreground hover:bg-accent/90 px-8 py-6 text-lg" asChild>
+            <Link href="#pricing">Get Started Now</Link>
         </Button>
       </div>
     </section>

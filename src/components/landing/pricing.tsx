@@ -1,9 +1,11 @@
+// components/landing/pricing.tsx
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Check, Printer, Barcode } from "lucide-react";
+import { Check } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 import { Label } from "@/components/ui/label";
@@ -22,6 +24,7 @@ const pricingTiers = [
     {
         name: "Professional",
         price: { monthly: "৳1,999", yearly: "৳19,999" },
+        regularPrice: null,
         description: "মাঝারি আকারের ফার্মেসী এবং ক্লিনিকের জন্য।",
         features: ["All Starter features", "Expiry Alerts", "5 Users", "Priority Support", "bKash Payment Gateway"],
         popular: false,
@@ -29,6 +32,7 @@ const pricingTiers = [
     {
         name: "Enterprise",
         price: { monthly: "Custom", yearly: "Custom" },
+        regularPrice: null,
         description: "বড় ফার্মেসী এবং ডিস্ট্রিবিউটরদের জন্য।",
         features: ["All Professional features", "Multi-branch Support", "Advanced Analytics", "Unlimited Users", "Dedicated Support"],
         popular: false,
@@ -50,6 +54,16 @@ const addons = [
 
 export function Pricing() {
     const [isYearly, setIsYearly] = useState(false);
+    const router = useRouter();
+
+    const handleBuyNow = (tierName: string, price: string) => {
+        if (tierName === 'Enterprise') {
+            // Handle enterprise contact
+            console.log('Contacting sales for Enterprise plan');
+            return;
+        }
+        router.push(`/checkout?plan=${encodeURIComponent(tierName)}&price=${encodeURIComponent(price)}`);
+    }
 
     return (
         <section id="pricing" className="container py-24 sm:py-32">
@@ -113,7 +127,10 @@ export function Pricing() {
                         </div>
 
                         <CardFooter>
-                            <Button className={cn("w-full", tier.popular ? "bg-primary hover:bg-primary/90" : "bg-accent text-accent-foreground hover:bg-accent/90")}>
+                            <Button 
+                                className={cn("w-full", tier.popular ? "bg-primary hover:bg-primary/90" : "bg-accent text-accent-foreground hover:bg-accent/90")}
+                                onClick={() => handleBuyNow(tier.name, isYearly ? tier.price.yearly : tier.price.monthly)}
+                            >
                                 {tier.name === 'Enterprise' ? "Contact Sales" : "Buy Now"}
                             </Button>
                         </CardFooter>
