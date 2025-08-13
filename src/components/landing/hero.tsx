@@ -41,7 +41,7 @@ export function Hero() {
 
           <div className="z-10">
             <Image
-              src="https://placehold.co/700x500.png"
+              src="https://web.oushodcloud.com/wp-content/uploads/2025/08/1752993401-402.png"
               alt="Pharmacy Software Illustration"
               width={700}
               height={500}
