@@ -26,7 +26,7 @@ const pricingTiers = [
         price: { monthly: "৳1,999", yearly: "৳19,999" },
         regularPrice: null,
         description: "মাঝারি আকারের ফার্মেসী এবং ক্লিনিকের জন্য।",
-        features: ["All Starter features", "Expiry Alerts", "5 Users", "Priority Support", "bKash Payment Gateway"],
+        features: ["All Starter features", "Expiry Alerts", "5 Users", "Priority Support"],
         popular: false,
     },
     {

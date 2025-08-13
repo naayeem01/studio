@@ -98,11 +98,6 @@ const features: FeatureProps[] = [
     title: "মাল্টি কারেন্সি (Multi Currency)",
     description: "বহু মুদ্রা সমর্থন এবং আন্তর্জাতিক লেনদেন সহজ।",
   },
-    {
-    icon: <CreditCard />,
-    title: "bKash Payment Gateway",
-    description: "সরাসরি বিকাশের মাধ্যমে পেমেন্ট গ্রহণ করুন।",
-  },
   {
     icon: <ClipboardList />,
     title: "Pharmacy Checkout Form",
