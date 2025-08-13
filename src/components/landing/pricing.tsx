@@ -3,24 +3,25 @@
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Check } from "lucide-react";
+import { Check, Printer, Barcode } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 
 const pricingTiers = [
     {
         name: "Starter",
-        price: { monthly: "৳999", yearly: "৳9,999" },
+        price: { monthly: "৳699", yearly: "৳7,999" },
+        regularPrice: { monthly: "৳1500", yearly: "৳18,000" },
         description: "ছোট ফার্মেসী এবং স্টার্টআপদের জন্য সেরা।",
         features: ["POS Billing", "Inventory Management", "Sales Reports", "1 User"],
-        popular: false,
+        popular: true,
     },
     {
         name: "Professional",
         price: { monthly: "৳1,999", yearly: "৳19,999" },
         description: "মাঝারি আকারের ফার্মেসী এবং ক্লিনিকের জন্য।",
         features: ["All Starter features", "Expiry Alerts", "5 Users", "Priority Support", "bKash Payment Gateway"],
-        popular: true,
+        popular: false,
     },
     {
         name: "Enterprise",
@@ -29,6 +30,19 @@ const pricingTiers = [
         features: ["All Professional features", "Multi-branch Support", "Advanced Analytics", "Unlimited Users", "Dedicated Support"],
         popular: false,
     }
+];
+
+const addons = [
+  {
+    icon: <Printer className="w-10 h-10 text-primary" />,
+    title: "POS Printer",
+    description: "High-quality thermal printers for fast receipt printing."
+  },
+  {
+    icon: <Barcode className="w-10 h-10 text-primary" />,
+    title: "Barcode Scanner",
+    description: "Efficiently scan products and speed up your checkout process."
+  }
 ];
 
 export function Pricing() {
@@ -58,12 +72,12 @@ export function Pricing() {
                     <Card key={tier.name} className={cn("flex flex-col transition-transform duration-300 ease-in-out hover:scale-105", tier.popular ? "border-2 border-primary shadow-lg" : "border")}>
                         <CardHeader className="flex-grow-0">
                             <CardTitle>{tier.name}</CardTitle>
-                            <div className="flex gap-0.5">
+                             <div className="flex items-baseline gap-2">
                                 <h3 className="text-4xl font-bold">{isYearly ? tier.price.yearly : tier.price.monthly}</h3>
-                                {tier.name !== 'Enterprise' && (
-                                <span className="flex flex-col justify-end text-sm mb-1 text-muted-foreground">
-                                    {isYearly ? "/year" : "/month"}
-                                </span>
+                                {tier.regularPrice && (
+                                    <span className="text-lg text-muted-foreground line-through">
+                                        {isYearly ? tier.regularPrice.yearly : tier.regularPrice.monthly}
+                                    </span>
                                 )}
                             </div>
                             <CardDescription className="font-bangla h-12">{tier.description}</CardDescription>
@@ -80,11 +94,35 @@ export function Pricing() {
                         </CardContent>
                         <CardFooter>
                             <Button className={cn("w-full", tier.popular ? "bg-primary hover:bg-primary/90" : "bg-accent text-accent-foreground hover:bg-accent/90")}>
-                                {tier.name === 'Enterprise' ? "Contact Sales" : "Start Free Trial"}
+                                {tier.name === 'Enterprise' ? "Contact Sales" : "Buy Now"}
                             </Button>
                         </CardFooter>
                     </Card>
                 ))}
+            </div>
+
+            <div className="mt-24">
+              <h3 className="text-3xl md:text-4xl font-bold text-center">
+                Hardware{" "}
+                <span className="bg-gradient-to-b from-primary/60 to-primary text-transparent bg-clip-text">
+                Add-ons
+                </span>
+              </h3>
+              <p className="text-xl text-muted-foreground text-center mt-4 mb-8 font-bangla">
+                আপনার ফার্মেসীর জন্য প্রয়োজনীয় হার্ডওয়্যার যুক্ত করুন।
+              </p>
+              <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+                {addons.map(addon => (
+                  <Card key={addon.title} className="bg-muted/40 p-6 flex flex-col items-center text-center">
+                    <div className="mb-4">
+                      {addon.icon}
+                    </div>
+                    <h4 className="text-xl font-bold mb-2">{addon.title}</h4>
+                    <p className="text-muted-foreground">{addon.description}</p>
+                    <Button variant="outline" className="mt-6">Contact for Price</Button>
+                  </Card>
+                ))}
+              </div>
             </div>
         </section>
     );

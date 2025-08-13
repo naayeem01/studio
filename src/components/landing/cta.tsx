@@ -11,7 +11,7 @@ export function CTA() {
           OushodCloud এর সাথে আপনার ব্যবসাকে দিন নতুন গতি। কোন প্রশ্ন আছে? আমাদের সাথে কথা বলুন।
         </p>
         <Button className="w-full md:w-auto bg-accent text-accent-foreground hover:bg-accent/90 px-8 py-6 text-lg">
-            Start Your Free Trial
+            Get Started Now
         </Button>
       </div>
     </section>

@@ -71,7 +71,7 @@ export function Header() {
           </div>
 
           <Button className="hidden sm:inline-flex bg-accent text-accent-foreground hover:bg-accent/90">
-            Start Free Trial
+            Buy Now
           </Button>
         </div>
       </div>
