@@ -1,17 +1,19 @@
 // components/landing/pricing.tsx
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Check } from "lucide-react";
+import { Check, Loader2 } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
-import { pricingTiers, addons } from "@/lib/pricing-data";
+import { getPricingData } from "@/ai/flows/pricing-flow";
+import { type PricingTier, type Addon } from "@/lib/types/pricing";
+import { Skeleton } from "@/components/ui/skeleton";
 
 // Helper to parse price strings like "৳3,999" into numbers
 const parsePrice = (priceStr: string): number => {
@@ -23,14 +25,58 @@ type SelectedAddons = {
   [key: string]: string[];
 };
 
+function PricingCardSkeleton() {
+    return (
+      <Card className="flex flex-col">
+        <CardHeader>
+          <Skeleton className="h-8 w-1/2 mb-2" />
+          <Skeleton className="h-10 w-1/3 mb-2" />
+          <Skeleton className="h-5 w-full" />
+        </CardHeader>
+        <CardContent className="flex-grow space-y-3">
+          <Skeleton className="h-5 w-full" />
+          <Skeleton className="h-5 w-4/5" />
+          <Skeleton className="h-5 w-full" />
+          <Skeleton className="h-5 w-3/4" />
+        </CardContent>
+        <CardFooter>
+          <Skeleton className="h-12 w-full" />
+        </CardFooter>
+      </Card>
+    );
+}
+
+
 export function Pricing() {
+    const [pricingTiers, setPricingTiers] = useState<PricingTier[]>([]);
+    const [addons, setAddons] = useState<Addon[]>([]);
+    const [loading, setLoading] = useState(true);
     const [isYearly, setIsYearly] = useState(false);
-    const [selectedAddons, setSelectedAddons] = useState<SelectedAddons>({
-      Starter: [],
-      Professional: [],
-      Enterprise: [],
-    });
+    const [selectedAddons, setSelectedAddons] = useState<SelectedAddons>({});
     const router = useRouter();
+
+    useEffect(() => {
+      async function loadData() {
+        try {
+          setLoading(true);
+          const data = await getPricingData();
+          setPricingTiers(data.pricingTiers);
+          setAddons(data.addons);
+          // Initialize selectedAddons state
+          const initialSelected: SelectedAddons = {};
+          data.pricingTiers.forEach(tier => {
+              initialSelected[tier.name] = [];
+          });
+          setSelectedAddons(initialSelected);
+        } catch (error) {
+          console.error("Failed to fetch pricing data:", error);
+          // Optionally, set some default or error state
+        } finally {
+          setLoading(false);
+        }
+      }
+      loadData();
+    }, []);
 
     const handleAddonToggle = (tierName: string, addonId: string, checked: boolean) => {
         setSelectedAddons(prev => {
@@ -62,8 +108,7 @@ export function Pricing() {
 
     const handleBuyNow = (tierName: string) => {
         if (tierName === 'Enterprise') {
-            console.log('Contacting sales for Enterprise plan');
-            // Or maybe open a contact modal/page
+            router.push('/#cta'); // Or a dedicated contact page
             return;
         }
 
@@ -94,74 +139,84 @@ export function Pricing() {
             </Tabs>
             
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mt-4">
-                {pricingTiers.map((tier) => (
-                    <Card key={tier.name} className={cn("flex flex-col transition-transform duration-300 ease-in-out hover:scale-105 overflow-hidden", tier.popular ? "border-2 border-primary shadow-lg" : "border")}>
-                        <CardHeader className="flex-grow-0 relative">
-                            <div className="absolute top-0 right-0">
-                                <div className="w-24 h-24 absolute top-0 right-0 overflow-hidden">
-                                    <div className="absolute top-0 right-0 bg-accent text-accent-foreground text-xs font-bold text-center transform rotate-45 translate-x-1/2 -translate-y-1/2 w-48 py-1" style={{transform: 'rotate(45deg) translate(25%, -50%)', transformOrigin: 'center'}}>
-                                        Free Installation
+                {loading ? (
+                    <>
+                        <PricingCardSkeleton />
+                        <PricingCardSkeleton />
+                        <PricingCardSkeleton />
+                    </>
+                ) : (
+                    pricingTiers.map((tier) => (
+                        <Card key={tier.name} className={cn("flex flex-col transition-transform duration-300 ease-in-out hover:scale-105 overflow-hidden", tier.popular ? "border-2 border-primary shadow-lg" : "border")}>
+                            <CardHeader className="flex-grow-0 relative">
+                                {tier.name === "Starter" && (
+                                    <div className="absolute top-0 right-0">
+                                        <div className="w-24 h-24 absolute top-0 right-0 overflow-hidden">
+                                            <div className="absolute top-0 right-0 bg-accent text-accent-foreground text-xs font-bold text-center transform rotate-45 translate-x-1/2 -translate-y-1/2 w-48 py-1" style={{transform: 'rotate(45deg) translate(25%, -50%)', transformOrigin: 'center'}}>
+                                                Free Installation
+                                            </div>
+                                        </div>
                                     </div>
-                                </div>
-                            </div>
-                            <CardTitle>{tier.name}</CardTitle>
-                             <div className="flex items-baseline gap-2">
-                                <h3 className="text-4xl font-bold">{isYearly ? tier.price.yearly : tier.price.monthly}</h3>
-                                {tier.regularPrice && (
-                                    <span className="text-lg text-muted-foreground line-through">
-                                        {isYearly ? tier.regularPrice.yearly : tier.regularPrice.monthly}
-                                    </span>
                                 )}
-                            </div>
-                            <CardDescription className="font-bangla h-12">{tier.description}</CardDescription>
-                        </CardHeader>
-                        <CardContent className="flex-grow">
-                            <ul className="space-y-3">
-                                {tier.features.map(feature => (
-                                    <li key={feature} className="flex items-start">
-                                        <Check className="h-5 w-5 mr-2 text-primary flex-shrink-0 mt-1" />
-                                        <span>{feature}</span>
-                                    </li>
-                                ))}
-                            </ul>
-                        </CardContent>
-
-                        <div className="p-6 pt-0">
-                          <Separator className="my-4" />
-                          <div className="space-y-4 rounded-lg p-4 bg-primary/5 border border-primary/20 shadow-inner transition-all duration-300">
-                            <h4 className="text-sm font-semibold text-center text-primary">Hardware Add-ons</h4>
-                            {addons.map(addon => (
-                              <div key={addon.id} className="flex justify-between items-center p-2 rounded-md hover:bg-primary/10">
-                                <Label htmlFor={`${tier.name}-${addon.id}`} className="flex items-center gap-3 cursor-pointer">
-                                  <Checkbox 
-                                    id={`${tier.name}-${addon.id}`}
-                                    onCheckedChange={(checked) => handleAddonToggle(tier.name, addon.id, !!checked)}
-                                    disabled={tier.name === 'Enterprise'}
-                                  />
-                                  <span>{addon.title}</span>
-                                </Label>
-                                <span className="font-bold">{addon.price}</span>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-
-                        <CardFooter className="flex flex-col items-stretch !pt-2">
-                            {tier.name !== 'Enterprise' && (
-                                <div className="text-center mb-4 border-t pt-4">
-                                    <p className="text-lg font-semibold">Total: <span className="text-primary">{calculateTotalPrice(tier.name)}</span></p>
+                                <CardTitle>{tier.name}</CardTitle>
+                                <div className="flex items-baseline gap-2">
+                                    <h3 className="text-4xl font-bold">{isYearly ? tier.price.yearly : tier.price.monthly}</h3>
+                                    {tier.regularPrice && (
+                                        <span className="text-lg text-muted-foreground line-through">
+                                            {isYearly ? tier.regularPrice.yearly : tier.regularPrice.monthly}
+                                        </span>
+                                    )}
                                 </div>
-                            )}
-                            <Button 
-                                className={cn("w-full", tier.popular ? "bg-primary hover:bg-primary/90" : "bg-accent text-accent-foreground hover:bg-accent/90")}
-                                onClick={() => handleBuyNow(tier.name)}
-                                disabled={tier.name !== 'Enterprise' && calculateTotalPrice(tier.name) === 'Custom'}
-                            >
-                                {tier.name === 'Enterprise' ? "Contact Sales" : "Buy Now"}
-                            </Button>
-                        </CardFooter>
-                    </Card>
-                ))}
+                                <CardDescription className="font-bangla h-12">{tier.description}</CardDescription>
+                            </CardHeader>
+                            <CardContent className="flex-grow">
+                                <ul className="space-y-3">
+                                    {tier.features.map(feature => (
+                                        <li key={feature} className="flex items-start">
+                                            <Check className="h-5 w-5 mr-2 text-primary flex-shrink-0 mt-1" />
+                                            <span>{feature}</span>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </CardContent>
+    
+                            <div className="p-6 pt-0">
+                              <Separator className="my-4" />
+                              <div className="space-y-4 rounded-lg p-4 bg-primary/5 border border-primary/20 shadow-inner transition-all duration-300">
+                                <h4 className="text-sm font-semibold text-center text-primary">Hardware Add-ons</h4>
+                                {addons.map(addon => (
+                                  <div key={addon.id} className="flex justify-between items-center p-2 rounded-md hover:bg-primary/10">
+                                    <Label htmlFor={`${tier.name}-${addon.id}`} className="flex items-center gap-3 cursor-pointer">
+                                      <Checkbox 
+                                        id={`${tier.name}-${addon.id}`}
+                                        onCheckedChange={(checked) => handleAddonToggle(tier.name, addon.id, !!checked)}
+                                        disabled={tier.name === 'Enterprise'}
+                                      />
+                                      <span>{addon.title}</span>
+                                    </Label>
+                                    <span className="font-bold">{addon.price}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+    
+                            <CardFooter className="flex flex-col items-stretch !pt-2">
+                                {tier.name !== 'Enterprise' && (
+                                    <div className="text-center mb-4 border-t pt-4">
+                                        <p className="text-lg font-semibold">Total: <span className="text-primary">{calculateTotalPrice(tier.name)}</span></p>
+                                    </div>
+                                )}
+                                <Button 
+                                    className={cn("w-full", tier.popular ? "bg-primary hover:bg-primary/90" : "bg-accent text-accent-foreground hover:bg-accent/90")}
+                                    onClick={() => handleBuyNow(tier.name)}
+                                    disabled={tier.name !== 'Enterprise' && calculateTotalPrice(tier.name) === 'Custom'}
+                                >
+                                    {tier.name === 'Enterprise' ? "Contact Sales" : "Buy Now"}
+                                </Button>
+                            </CardFooter>
+                        </Card>
+                    ))
+                )}
             </div>
         </section>
     );
