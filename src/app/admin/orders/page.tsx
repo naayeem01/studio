@@ -22,11 +22,13 @@ import {
     PaginationLink,
     PaginationNext,
     PaginationPrevious,
-  } from "@/components/ui/pagination"
+  } from "@/components/ui/pagination";
+import { Input } from "@/components/ui/input";
 
 export default function OrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     async function fetchOrders() {
@@ -43,19 +45,34 @@ export default function OrdersPage() {
     fetchOrders();
   }, []);
 
+  const filteredOrders = orders.filter(order =>
+    order.orderId.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    order.mobile.includes(searchTerm)
+  );
+
   if (loading) {
     return <div>Loading orders...</div>;
   }
 
   return (
     <div>
-      <h2 className="text-3xl font-bold mb-6">Manage Orders</h2>
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-3xl font-bold">Manage Orders</h2>
+        <div className="w-1/3">
+            <Input 
+                placeholder="Search by Order ID or Phone Number"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+            />
+        </div>
+      </div>
       <div className="border rounded-lg">
         <Table>
           <TableHeader>
             <TableRow>
               <TableHead>Order ID</TableHead>
               <TableHead>Customer</TableHead>
+              <TableHead>Phone</TableHead>
               <TableHead>Plan</TableHead>
               <TableHead>Total Price</TableHead>
               <TableHead>Status</TableHead>
@@ -63,8 +80,8 @@ export default function OrdersPage() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {orders.length > 0 ? (
-              orders.map((order) => (
+            {filteredOrders.length > 0 ? (
+              filteredOrders.map((order) => (
                 <TableRow key={order.orderId}>
                   <TableCell className="font-medium">{order.orderId}</TableCell>
                   <TableCell>
@@ -73,6 +90,7 @@ export default function OrdersPage() {
                       {order.customer.email}
                     </div>
                   </TableCell>
+                  <TableCell>{order.mobile}</TableCell>
                   <TableCell>{order.plan}</TableCell>
                   <TableCell>{order.totalPrice}</TableCell>
                   <TableCell>
@@ -85,7 +103,7 @@ export default function OrdersPage() {
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={6} className="text-center">No orders found.</TableCell>
+                <TableCell colSpan={7} className="text-center">No orders found.</TableCell>
               </TableRow>
             )}
           </TableBody>
