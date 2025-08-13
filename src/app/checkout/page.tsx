@@ -31,7 +31,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { submitOrder } from '@/ai/flows/order-flow';
+import { submitOrder, sendPaymentLinkSms } from '@/ai/flows/order-flow';
 import { type OrderInput, OrderStatusSchema } from '@/lib/types/order';
 import { createPayment } from '@/ai/flows/payment-flow';
 import { useToast } from '@/hooks/use-toast';
@@ -128,8 +128,8 @@ export default function CheckoutPage() {
     };
 
     try {
-      // 1. Submit the order to our system first to get an orderId
-      const { orderId } = await submitOrder(orderData);
+      // 1. Submit the order to our system first
+      const newOrder = await submitOrder(orderData);
 
       // 2. Create the payment request for UddoktaPay
       const paymentResponse = await createPayment({
@@ -137,13 +137,20 @@ export default function CheckoutPage() {
         email: values.email,
         amount: parsePrice(values.price),
         metadata: {
-          orderId: orderId,
+          orderId: newOrder.orderId,
           plan: values.plan,
         }
       });
       
-      // 3. Redirect to the payment gateway
+      // 3. Send payment link via SMS
       if (paymentResponse.payment_url) {
+        await sendPaymentLinkSms({
+            mobile: newOrder.mobile,
+            orderId: newOrder.orderId,
+            paymentUrl: paymentResponse.payment_url,
+        });
+
+        // 4. Redirect to the payment gateway
         window.location.href = paymentResponse.payment_url;
       } else {
         throw new Error("Payment URL not received.");

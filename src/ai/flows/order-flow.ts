@@ -7,6 +7,7 @@
  * - getOrders - Retrieves all stored orders.
  * - updateOrderStatus - Updates the status of a specific order.
  * - deleteOrder - Deletes a specific order.
+ * - sendPaymentLinkSms - Sends an SMS with the payment link.
  */
 
 import { ai } from '@/ai/genkit';
@@ -60,7 +61,7 @@ const submitOrderFlow = ai.defineFlow(
   {
     name: 'submitOrderFlow',
     inputSchema: OrderInputSchema,
-    outputSchema: z.object({ orderId: z.string() }),
+    outputSchema: OrderSchema,
   },
   async (input) => {
     orderCounter++;
@@ -71,13 +72,24 @@ const submitOrderFlow = ai.defineFlow(
     };
     orders.push(newOrder);
     console.log('New order submitted:', newOrder);
-
-    // Send confirmation SMS
-    const smsMessage = `Thanks for your order at OushodCloud! Your order number is ${newOrder.orderId}. We will contact you shortly.`;
-    await sendSms(newOrder.mobile, smsMessage);
-
-    return { orderId: newOrder.orderId };
+    return newOrder;
   }
+);
+
+const sendPaymentLinkSmsFlow = ai.defineFlow(
+    {
+        name: 'sendPaymentLinkSmsFlow',
+        inputSchema: z.object({
+            mobile: z.string(),
+            orderId: z.string(),
+            paymentUrl: z.string().url(),
+        }),
+        outputSchema: z.void(),
+    },
+    async ({ mobile, orderId, paymentUrl }) => {
+        const smsMessage = `Thanks for your order at OushodCloud! Your order ID is ${orderId}. Please complete your payment using this link: ${paymentUrl}`;
+        await sendSms(mobile, smsMessage);
+    }
 );
 
 const getOrdersFlow = ai.defineFlow(
@@ -134,8 +146,12 @@ const deleteOrderFlow = ai.defineFlow(
 
 
 // Exported wrapper functions for client-side usage
-export async function submitOrder(input: OrderInput): Promise<{ orderId: string }> {
+export async function submitOrder(input: OrderInput): Promise<Order> {
   return submitOrderFlow(input);
+}
+
+export async function sendPaymentLinkSms(input: { mobile: string, orderId: string, paymentUrl: string }): Promise<void> {
+    return sendPaymentLinkSmsFlow(input);
 }
 
 export async function getOrders(): Promise<Order[]> {
