@@ -19,14 +19,14 @@ const pricingTiers = [
         name: "Professional",
         price: { monthly: "৳1,999", yearly: "৳19,999" },
         description: "মাঝারি আকারের ফার্মেসী এবং ক্লিনিকের জন্য।",
-        features: ["All Starter features", "Multi-branch Support", "Expiry Alerts", "5 Users", "Priority Support"],
+        features: ["All Starter features", "Expiry Alerts", "5 Users", "Priority Support", "bKash Payment Gateway"],
         popular: true,
     },
     {
         name: "Enterprise",
         price: { monthly: "Custom", yearly: "Custom" },
         description: "বড় ফার্মেসী এবং ডিস্ট্রিবিউটরদের জন্য।",
-        features: ["All Professional features", "ZKTeco Integration", "Advanced Analytics", "Unlimited Users", "Dedicated Support"],
+        features: ["All Professional features", "Multi-branch Support", "Advanced Analytics", "Unlimited Users", "Dedicated Support"],
         popular: false,
     }
 ];
@@ -55,7 +55,7 @@ export function Pricing() {
             
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mt-4">
                 {pricingTiers.map((tier) => (
-                    <Card key={tier.name} className={cn("flex flex-col", tier.popular ? "border-2 border-primary shadow-lg" : "border")}>
+                    <Card key={tier.name} className={cn("flex flex-col transition-transform duration-300 ease-in-out hover:scale-105", tier.popular ? "border-2 border-primary shadow-lg" : "border")}>
                         <CardHeader className="flex-grow-0">
                             <CardTitle>{tier.name}</CardTitle>
                             <div className="flex gap-0.5">

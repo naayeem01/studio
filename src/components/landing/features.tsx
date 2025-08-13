@@ -15,7 +15,9 @@ import {
   AlarmClockOff,
   BarChart3,
   Languages,
-  BadgeDollarSign
+  BadgeDollarSign,
+  CreditCard,
+  ClipboardList
 } from "lucide-react";
 import React from "react";
 
@@ -96,6 +98,16 @@ const features: FeatureProps[] = [
     title: "মাল্টি কারেন্সি (Multi Currency)",
     description: "বহু মুদ্রা সমর্থন এবং আন্তর্জাতিক লেনদেন সহজ।",
   },
+    {
+    icon: <CreditCard />,
+    title: "bKash Payment Gateway",
+    description: "সরাসরি বিকাশের মাধ্যমে পেমেন্ট গ্রহণ করুন।",
+  },
+  {
+    icon: <ClipboardList />,
+    title: "Pharmacy Checkout Form",
+    description: "বেসিক ফার্মেসী ডিটেইলস সহ দ্রুত চেকআউট।",
+  },
 ];
 
 export function Features() {
@@ -112,7 +124,7 @@ export function Features() {
       </p>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
         {features.map(({ icon, title, description }: FeatureProps) => (
-          <Card key={title} className="bg-muted/40 flex flex-col items-center justify-center text-center p-6">
+          <Card key={title} className="bg-muted/40 flex flex-col items-center justify-center text-center p-6 transition-transform duration-300 ease-in-out hover:scale-105">
             <div className="mb-4">
               <div className="flex h-14 w-14 items-center justify-center rounded-full bg-primary/10 text-primary">
                 {React.cloneElement(icon, { className: "w-8 h-8" })}
